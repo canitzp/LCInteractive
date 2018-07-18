@@ -1,0 +1,32 @@
+plugins {
+    id 'ear'
+    id 'java'
+    id 'war'
+    id "com.bmuschko.tomcat" version "2.5"
+}
+
+group 'de.canitzp.lcinteractive'
+version '1.0.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+dependencies {
+    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+    compile 'com.j2html:j2html:1.3.0'
+    compile 'com.github.chris54721:openmcauthenticator:1.3.1'
+    def tomcatVersion = '7.0.57'
+    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+    "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}"
+    tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}")
+}
+
+tomcatRun.contextPath = '/'
+tomcatRunWar.contextPath = '/'
