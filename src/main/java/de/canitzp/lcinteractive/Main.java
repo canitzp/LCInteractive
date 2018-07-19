@@ -1,11 +1,11 @@
 package de.canitzp.lcinteractive;
 
-import j2html.TagCreator;
+import j2html.tags.ContainerTag;
 import net.chris54721.openmcauthenticator.OpenMCAuthenticator;
 import net.chris54721.openmcauthenticator.exceptions.AuthenticationUnavailableException;
 import net.chris54721.openmcauthenticator.exceptions.RequestException;
 import net.chris54721.openmcauthenticator.responses.AuthenticationResponse;
-import net.chris54721.openmcauthenticator.responses.RefreshResponse;
+import sun.rmi.runtime.Log;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -32,50 +32,24 @@ public class Main extends HttpServlet {
     }
 
     public void doStuff(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
-        if(req.getParameterMap().containsKey("email") && req.getParameterMap().containsKey("password")){
+        ContainerTag html = html(
+                head(
+                        title("Limbo Con Registration")
+                )
+        );
+        if(req.getParameterMap().containsKey(LoginPage.INPUT_NAME_EMAIL) && req.getParameterMap().containsKey(LoginPage.INPUT_NAME_PASSWORD)){
             String htmlString;
             try {
-                AuthenticationResponse ar = OpenMCAuthenticator.authenticate(req.getParameter("email"), req.getParameter("password"));
+                AuthenticationResponse ar = OpenMCAuthenticator.authenticate(req.getParameter(LoginPage.INPUT_NAME_EMAIL), req.getParameter(LoginPage.INPUT_NAME_PASSWORD));
                 htmlString = ar.getSelectedProfile().getUUID().toString();
             } catch (RequestException | AuthenticationUnavailableException e) {
                 htmlString = e.getLocalizedMessage();
                 e.printStackTrace();
             }
-            resp.getWriter().append(
-                    html(
-                            head(
-                                    title("Limbo Con Registration")
-                            ),
-                            body(
-                                    htmlString
-                            )
-                    ).renderFormatted()
-            );
+            html.with(body(htmlString));
         } else {
-            resp.getWriter().append(
-                    html(
-                            head(
-                                    title("Limbo Con Registration")
-                            ),
-                            body(
-                                    div(
-                                            div(
-                                                    form(
-                                                            label("E-Mail:"),
-                                                            br(),
-                                                            input().withType("email").withId("email").withName("email").attr("size", 50),
-                                                            br(),
-                                                            label("Password:"),
-                                                            br(),
-                                                            input().withType("password").withId("password").withName("password").attr("size", 50),
-                                                            br(),
-                                                            input().withType("submit")
-                                                    ).withMethod("post")
-                                            ).withStyle("border: 1px solid black; margin: auto")
-                                    ).attr("align", "center")
-                            )
-                    ).renderFormatted()
-            );
+            LoginPage.render(html);
         }
+        resp.getWriter().append(html.renderFormatted());
     }
 }
